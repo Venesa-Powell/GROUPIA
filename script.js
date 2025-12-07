@@ -1,10 +1,14 @@
+
+function ById(id) {
+    return document.getElementById(id);
+}
+
+/* ============================================================
+   DOMContentLoaded – Initialize everything
+   ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
 
-        displayProducts(); 
-
-
-    // Make "Add to Cart" buttons work on the home page
-    setupAddToCartButtons();
+    displayProducts();  // Render products and attach Add to Cart buttons
 
     // Fill the cart table if we are on cart.html
     renderCartPage();
@@ -26,9 +30,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ============================================================
-   Data: Product Catalog (name → price)
+   Data: Product Catalog
    ============================================================ */
-
 const products = [
     {
         name: "Bamboo Relaxed Tee",
@@ -50,37 +53,34 @@ const products = [
     }
 ];
 
-// 2. Save to localStorage as AllProducts
+// Save to localStorage as AllProducts
 localStorage.setItem("AllProducts", JSON.stringify(products));
 
-// 3. Display products dynamically
+/* ============================================================
+   Display products dynamically
+   ============================================================ */
 function displayProducts() {
-    const container = document.getElementById("productGrid");
+    const container = ById("productGrid");
     container.innerHTML = ""; // clear first
 
-    products.forEach((p,index)=> {
+    products.forEach((p,index) => {
         container.innerHTML += `
             <article class="product-card">
                 <img src="${p.image}" alt="${p.name}" width="200">
                 <h3>${p.name}</h3>
                 <p class="price">$${p.price.toFixed(2)}</p>
                 <p class="description">${p.description}</p>
-                 <button class="button ghost add-to-cart" data-index="${index}">Add to Cart</button>
-
+                <button class="button ghost add-to-cart" data-index="${index}">Add to Cart</button>
             </article>
         `;
     });
-            setupAddToCartButtons(); // attach event handlers here
 
+    setupAddToCartButtons(); // attach event handlers after rendering
 }
-
-
-
 
 /* ============================================================
    Helper: Read & Write Cart in localStorage
    ============================================================ */
-
 function getCart() {
     return JSON.parse(localStorage.getItem("cart")) || [];
 }
@@ -99,21 +99,20 @@ function setupAddToCartButtons() {
             const index = e.target.dataset.index;
             const product = products[index];
 
-            // Get current cart from localStorage or empty array
-            const cart = JSON.parse(localStorage.getItem("cart")) || [];
+            if (!product) return;
 
-            // Add product to cart
-            cart.push(product);
-
-            // Save cart back to localStorage
-            localStorage.setItem("cart", JSON.stringify(cart));
+            // Use addToCart() helper to handle qty
+            addToCart(product.name);
 
             // Redirect to cart page
             window.location.href = "cart.html";
         });
     });
-
 }
+
+/* ============================================================
+   Add product to cart with quantity
+   ============================================================ */
 function addToCart(name) {
     // Find the product by name in the array
     const product = products.find(p => p.name === name);
@@ -138,7 +137,6 @@ function addToCart(name) {
 /* ============================================================
    Helper: Calculate totals (used for cart, checkout, invoice)
    ============================================================ */
-
 function calculateTotals(cart) {
     let subtotal = 0;
 
@@ -164,7 +162,6 @@ function calculateTotals(cart) {
 /* ============================================================
    CART PAGE – Render Items into the Table
    ============================================================ */
-
 function renderCartPage() {
     const tbody = ById("cart-body");
     const totalCell = ById("cart-total");
@@ -213,7 +210,6 @@ function renderCartPage() {
 /* ============================================================
    CHECKOUT – Order Summary (Right Side Panel)
    ============================================================ */
-
 function renderCheckoutSummary() {
     const summaryList = ById("checkout-summary-list");
     const totalLabel = document.querySelector(".summary .total");
@@ -237,10 +233,8 @@ function renderCheckoutSummary() {
 
     const totals = calculateTotals(cart);
 
-    // Clear old content
     summaryList.innerHTML = "";
 
-    // Each line item with quantity and subtotal
     cart.forEach(item => {
         const lineSubtotal = item.price * item.qty;
         summaryList.innerHTML += `
@@ -251,7 +245,6 @@ function renderCheckoutSummary() {
         `;
     });
 
-    // Breakdown rows
     summaryList.innerHTML += `
         <li>
             <span>Items Subtotal</span>
@@ -271,22 +264,18 @@ function renderCheckoutSummary() {
         </li>
     `;
 
-    // Final order total
     totalLabel.textContent = "$" + totals.total.toFixed(2);
 
-    // Prefill amount being paid with the total
     if (amount && !amount.value) {
         amount.value = totals.total.toFixed(2);
     }
 
-    // Save for invoice + validation
     localStorage.setItem("order_total", totals.total.toFixed(2));
 }
 
 /* ============================================================
    CHECKOUT – Form Validation & Store "Last Order"
    ============================================================ */
-
 function setupCheckoutForm() {
     const form = document.querySelector(".form-card.wide form");
     if (!form) return; // not on checkout page
@@ -343,7 +332,6 @@ function setupCheckoutForm() {
             parish
         };
 
-        // Save customer and order data for invoice
         const order = {
             cart,
             totals,
@@ -354,7 +342,6 @@ function setupCheckoutForm() {
         localStorage.setItem("last_order", JSON.stringify(order));
 
         alert("Order completed successfully.");
-        // Go to invoice page
         window.location.href = "invoice.html";
     });
 }
@@ -362,7 +349,6 @@ function setupCheckoutForm() {
 /* ============================================================
    REGISTER – Create User Account in localStorage
    ============================================================ */
-
 function setupRegisterForm() {
     const form = document.querySelector("main .form-card.wide form");
     if (!form) return; // not on register page
@@ -416,16 +402,11 @@ function setupRegisterForm() {
 /* ============================================================
    LOGIN – Simple localStorage-based authentication
    ============================================================ */
-
 function setupLoginForm() {
     const form = document.querySelector("main .form-card form");
     if (!form) return; // not on login page
 
-    // Try to detect login page by id of username field
-    if (!ById("username") ||
-        !ById("password")) {
-        return;
-    }
+    if (!ById("username") || !ById("password")) return;
 
     form.addEventListener("submit", e => {
         e.preventDefault();
@@ -441,10 +422,7 @@ function setupLoginForm() {
 
         const users = JSON.parse(localStorage.getItem("users")) || [];
         const user = users.find(
-            u =>
-                u.username === username &&
-                u.email === email &&
-                u.password === password
+            u => u.username === username && u.email === email && u.password === password
         );
 
         if (!user) {
@@ -452,7 +430,6 @@ function setupLoginForm() {
             return;
         }
 
-        // Save current logged in user
         localStorage.setItem(
             "currentUser",
             JSON.stringify({ username: user.username, email: user.email })
@@ -466,7 +443,6 @@ function setupLoginForm() {
 /* ============================================================
    INVOICE – Render Last Order (from localStorage)
    ============================================================ */
-
 function renderInvoicePage() {
     const tbody = ById("invoice-body");
     const subtotalCell = ById("invoice-subtotal");
@@ -481,7 +457,7 @@ function renderInvoicePage() {
     const billEmail = ById("bill-email");
     const invDate = ById("invoice-date");
 
-    if (!tbody || !totalCell) return; // not on invoice page
+    if (!tbody || !totalCell) return;
 
     const order = JSON.parse(localStorage.getItem("last_order"));
 
@@ -499,7 +475,6 @@ function renderInvoicePage() {
         return;
     }
 
-    // Fill line items
     tbody.innerHTML = "";
     order.cart.forEach(item => {
         const lineSubtotal = item.price * item.qty;
@@ -513,7 +488,6 @@ function renderInvoicePage() {
         `;
     });
 
-    // Fill totals
     const t = order.totals;
     if (subtotalCell) subtotalCell.textContent = "$" + t.subtotal.toFixed(2);
     if (discountCell) discountCell.textContent = "-$" + t.discount.toFixed(2);
@@ -521,7 +495,6 @@ function renderInvoicePage() {
     if (shippingCell) shippingCell.textContent = "$" + t.shipping.toFixed(2);
     totalCell.textContent = "$" + t.total.toFixed(2);
 
-    // Fill billed-to info if IDs are present
     if (billName) billName.textContent = order.customer.name;
     if (billAddress1) billAddress1.textContent = order.customer.address;
     if (billAddress2)
