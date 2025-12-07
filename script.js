@@ -82,7 +82,7 @@ window.onload = displayProducts;
    ============================================================ */
 
 function getCart() {
-    return JSON.parse(localstorage.getItem("cart")) || [];
+    return JSON.parse(localStorage.getItem("cart")) || [];
 }
 
 function saveCart(cart) {
@@ -99,7 +99,7 @@ function setupAddToCartButtons() {
     if (!buttons.length) return; // not on home page
 
     buttons.forEach(btn => {
-        btn.addEventListener("", () => {
+        btn.addEventListener("Click", () => {
             const name = btn.dataset.product;
             addToCart(name);
             alert("Item added to cart.");
@@ -108,8 +108,9 @@ function setupAddToCartButtons() {
 }
 
 function addToCart(name) {
+    const product = products.find(p => p.name === name);
     // Only add if product exists in our catalog
-    if (!products[name]) return;
+    if (!products) return;
 
     let cart = getCart();
     const existing = cart.find(item => item.name === name);
