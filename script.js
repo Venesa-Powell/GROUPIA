@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+    displayProducts();
+
     // Make "Add to Cart" buttons work on the home page
     setupAddToCartButtons();
 
