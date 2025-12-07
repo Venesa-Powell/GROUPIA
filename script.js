@@ -1,6 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
-
-    displayProducts();
+document.addEventListener("entLoaded", () => {
 
     // Make "Add to Cart" buttons work on the home page
     setupAddToCartButtons();
@@ -24,14 +22,10 @@ document.addEventListener("DOMContentLoaded", () => {
     renderInvoicePage();
 });
 
-function ById(id) {
-    return document.getElementById(id);
-}
-
 /* ============================================================
    Data: Product Catalog (name → price)
    ============================================================ */
-//  Create product objects
+
 const products = [
     {
         name: "Bamboo Relaxed Tee",
@@ -82,7 +76,7 @@ function displayProducts() {
    ============================================================ */
 
 function getCart() {
-    return JSON.parse(localStorage.getItem("cart")) || [];
+    return JSON.parse(Storage.getItem("cart")) || [];
 }
 
 function saveCart(cart) {
@@ -99,7 +93,7 @@ function setupAddToCartButtons() {
     if (!buttons.length) return; // not on home page
 
     buttons.forEach(btn => {
-        btn.addEventListener("Click", () => {
+        btn.addEventListener("", () => {
             const name = btn.dataset.product;
             addToCart(name);
             alert("Item added to cart.");
@@ -108,9 +102,8 @@ function setupAddToCartButtons() {
 }
 
 function addToCart(name) {
-    const product = products.find(p => p.name === name);
     // Only add if product exists in our catalog
-    if (!products) return;
+    if (!products[name]) return;
 
     let cart = getCart();
     const existing = cart.find(item => item.name === name);
@@ -207,7 +200,7 @@ function renderCartPage() {
    CHECKOUT – Order Summary (Right Side Panel)
    ============================================================ */
 
- function renderCheckoutSummary() {
+function renderCheckoutSummary() {
     const summaryList = ById("checkout-summary-list");
     const totalLabel = document.querySelector(".summary .total");
     const amount = ById("amount");
@@ -363,42 +356,18 @@ function setupRegisterForm() {
     form.addEventListener("submit", e => {
         e.preventDefault();
 
-        const firstName = ById("first-name").value.trim();
-        const lastName = ById("last-name").value.trim();
-        const dob = ById("dob").value;
-        const gender = ById("gender").value;
-        const username = ById("trn").value.trim();
+        const username = ById("username").value.trim();
         const email = ById("email").value.trim();
         const password = ById("password").value;
         const confirmPassword = ById("confirm-password").value;
-        
-        if (!firstName || !lastName || !dob || !gender ||
-            !username || !email || !password || !confirmPassword) {
+
+        if (!username || !email || !password || !confirmPassword) {
             alert("Please fill out all required fields.");
             return;
-    
         }
 
-        if (!validateTRN(username)) {
-            alert("TRN must be in the format 000-000-000.");
-            return;
-        }
-
-        //split dob into year, month, day and map means convert to number
-        const [birth_year, birth_month, birth_day] = dob.split("-").map(Number);
-
-        // now call  calculate_age function
-        const age = calculate_age(birth_month, birth_day, birth_year);
-
-    
-        if (age < 18) {
-            alert("You must be at least 18 years old to register.");
-            return;
-        }
-
-
-        if (password.length < 8) {
-            alert("Password must be at least 8 characters long.");
+        if (password.length < 6) {
+            alert("Password must be at least 6 characters long.");
             return;
         }
 
@@ -416,18 +385,12 @@ function setupRegisterForm() {
             alert("An account with that username or email already exists.");
             return;
         }
+
         users.push({
-            firstName,
-            lastName,
-            dob,
-            age,
-            gender,
             username,
             email,
             password
         });
-
-
 
         localStorage.setItem("users", JSON.stringify(users));
 
@@ -445,7 +408,7 @@ function setupLoginForm() {
     if (!form) return; // not on login page
 
     // Try to detect login page by id of username field
-    if (!ById("trn") ||
+    if (!ById("username") ||
         !ById("password")) {
         return;
     }
@@ -453,36 +416,32 @@ function setupLoginForm() {
     form.addEventListener("submit", e => {
         e.preventDefault();
 
-        const username = ById("trn").value.trim();
-        // Validate TRN format  venesa
-         if (!validateTRN(username)) {
-             alert("TRN must be in the format 000-000-000.");
-             return;
-         }
-
+        const username = ById("username").value.trim();
+        const email = ById("email").value.trim();
         const password = ById("password").value;
 
-        if (!username || !password) {
+        if (!username || !email || !password) {
             alert("Please fill in all login fields.");
             return;
         }
-//venesa
+
         const users = JSON.parse(localStorage.getItem("users")) || [];
         const user = users.find(
             u =>
                 u.username === username &&
+                u.email === email &&
                 u.password === password
         );
 
         if (!user) {
-            alert("Invalid username or password.");
+            alert("Invalid username, email, or password.");
             return;
         }
 
         // Save current logged in user
         localStorage.setItem(
             "currentUser",
-            JSON.stringify({ username: user.username })
+            JSON.stringify({ username: user.username, email: user.email })
         );
 
         alert("Login successful.");
@@ -557,81 +516,3 @@ function renderInvoicePage() {
     if (billEmail) billEmail.textContent = order.customer.email;
     if (invDate && order.date) invDate.textContent = order.date;
 }
-//FREQUENCY
-    function calculate_age(birth_month,birth_day,birth_year)
-    {
-        today_date = new Date(); // get today's date
-        today_year = today_date.getFullYear(); // get today's year
-        today_month = today_date.getMonth();// get today's month
-        today_day = today_date.getDate();// get today's day
-        age = today_year - birth_year; // calculate age based on year
-
-        if ( today_month < (birth_month - 1)) // IF birth month hasn't occurred yet this year then -1 from age
-        {
-            age--; 
-        }
-        if (((birth_month - 1) == today_month) && (today_day < birth_day)) // if birth month is this month but the birth day hasn't occurred yet then -1 from age
-        {
-            age--;
-        }
-        return age; // return the calculated age
-    }
-       
-        function ShowUserFrequency() {
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-
-    // Gender counters
-    let maleCount = 0;
-    let femaleCount = 0;
-    let otherCount = 0;
-
-    // Age group counters
-    let age18_25 = 0;
-    let age26_35 = 0;
-    let age36_50 = 0;
-    let age50plus = 0;
-
-     // Loop through each user
-    for (let i = 0; i < users.length; i++) {
-        const user = users[i];
-
-        // Count gender
-        if (user.gender === "Male") {
-            maleCount++;
-        } else if (user.gender === "Female") {
-            femaleCount++;
-        } else {
-            otherCount++;
-        }
-
-        
-
-        // Count age groups
-        const age = user.age;
-
-        if (age >= 18 && age <= 25) {
-            age18_25++; }
-        else if (age >= 26 && age <= 35) {
-            age26_35++;}
-        else if (age >= 36 && age <= 50) {
-            age36_50++;}
-        else if (age > 50) { 
-            age50plus++;}
-    }
-
-    // Display in dashboard
-    document.getElementById("Male").innerText = maleCount;
-    document.getElementById("Female").innerText = femaleCount;
-    document.getElementById("Other").innerText = otherCount;
-
-    document.getElementById("18-25").innerText = age18_25;
-    document.getElementById("26-35").innerText = age26_35;
-    document.getElementById("36-50").innerText = age36_50;
-    document.getElementById("50+").innerText = age50plus;
-}
-
-
-// RUN IT WHEN PAGE LOADS
-document.addEventListener("DOMContentLoaded", ShowUserFrequency);
-
-
