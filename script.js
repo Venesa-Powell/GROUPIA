@@ -70,6 +70,8 @@ function displayProducts() {
             </article>
         `;
     });
+            setupAddToCartButtons(); // attach event handlers here
+
 }
 
 
