@@ -30,7 +30,7 @@
         <p>Register to unlock member rewards, early access launches, and personalized recommendations.</p>
 
         <!-- This form is validated in script.js (setupRegisterForm) -->
-        <form class="form-grid two-column">
+        <form id="register-form" class="form-grid two-column">
 
             <label for="first-name">First Name</label>
             <input type="text" id="first-name" placeholder="Avery" required>
@@ -47,8 +47,9 @@
             <label for="phone">Phone Number</label>
             <input type="tel" id="phone" placeholder="(876) 555-0101">
 
-            <label for="username">Username</label>
-            <input type="text" id="username" placeholder="ecoavery" required>
+            <label for="trn">TRN Number</label>
+            <input type="text" id="trn" placeholder="000-000-000" required>
+
 
             <label for="password">Password</label>
             <input type="password" id="password" required>
