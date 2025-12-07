@@ -61,34 +61,32 @@ localStorage.setItem("AllProducts", JSON.stringify(products));
    ============================================================ */
 function displayProducts() {
     const container = ById("productGrid");
+    if (!container) return; // stop if container not found
+
     container.innerHTML = ""; // clear first
 
-    products.forEach((p,index) => {
-         const article = document.createElement("article");
+    products.forEach((p) => {
+        const article = document.createElement("article");
+        article.className = "product-card";
 
-            <article class="product-card">
-
-             article.innerHTML += `
-
-                <img src="${p.image}" alt="${p.name}" width="200">
-                <h3>${p.name}</h3>
-                <p class="price">$${p.price.toFixed(2)}</p>
-                <p class="description">${p.description}</p>
-                <button class="button ghost add-to-cart">Add to Cart</button>
-        
+        article.innerHTML = `
+            <img src="${p.image}" alt="${p.name}" width="200">
+            <h3>${p.name}</h3>
+            <p class="price">$${p.price.toFixed(2)}</p>
+            <p class="description">${p.description}</p>
+            <button class="button ghost add-to-cart">Add to Cart</button>
         `;
-     const btn = article.querySelector(".add-to-cart");
-        btn.addEventListener("click", () => {
-            addToCart(p.name);   // Add product by name
-            window.location.href = "cart.html"; // Redirect to cart
+
+        // Attach click listener immediately
+        article.querySelector(".add-to-cart").addEventListener("click", () => {
+            addToCart(p.name);
+            window.location.href = "cart.html";
         });
 
-        // Append to container
         container.appendChild(article);
     });
-
-
 }
+
 
 /* ============================================================
    Helper: Read & Write Cart in localStorage
