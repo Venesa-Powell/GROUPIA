@@ -74,8 +74,6 @@ function displayProducts() {
     });
 }
 
-//  Run automatically
-window.onload = displayProducts;
 
 
 
@@ -630,6 +628,7 @@ function renderInvoicePage() {
     document.getElementById("26-35").innerText = age26_35;
     document.getElementById("36-50").innerText = age36_50;
     document.getElementById("50+").innerText = age50plus;
+}
 
 
 // RUN IT WHEN PAGE LOADS
