@@ -105,25 +105,30 @@ function saveCart(cart) {
    Add product to cart with quantity
    ============================================================ */
 function addToCart(name) {
-    // Find the product by name in the array
+    // Find the product by name
     const product = products.find(p => p.name === name);
-    if (!product) return; // exit if not found
+    if (!product) return;
 
+    // Get current cart or empty array
     let cart = getCart();
+
+    // Check if product is already in cart
     const existing = cart.find(item => item.name === name);
 
     if (existing) {
-        existing.qty++;
+        existing.qty++; // increment qty
     } else {
         cart.push({
             name: product.name,
-            price: product.price,
+            price: product.price, // make sure this is a number
             qty: 1
         });
     }
 
     saveCart(cart);
 }
+
+
 
 /* ============================================================
    Helper: Calculate totals (used for cart, checkout, invoice)
@@ -132,23 +137,28 @@ function calculateTotals(cart) {
     let subtotal = 0;
 
     cart.forEach(item => {
-        subtotal += item.price * item.qty;
-    });
+    const subtotal = item.price * item.qty;
+    const discount = subtotal * 0.10;
+    const taxable = subtotal - discount;
+    const tax = taxable * 0.15;
+    const lineTotal = taxable + tax;
 
-    const discount = subtotal * 0.10;              // 10% discount
-    const discountedSubtotal = subtotal - discount;
-    const tax = discountedSubtotal * 0.15;         // 15% tax
-    const shipping = 12.00;                        // flat shipping
-    const total = discountedSubtotal + tax + shipping;
+    grandTotal += lineTotal;
 
-    return {
-        subtotal,
-        discount,
-        tax,
-        shipping,
-        total
-    };
-}
+    tbody.innerHTML += `
+        <tr>
+            <td>${item.name}</td>
+            <td>${item.qty}</td>
+            <td>$${item.price.toFixed(2)}</td>
+            <td>$${subtotal.toFixed(2)}</td>
+            <td>$${discount.toFixed(2)}</td>
+            <td>$${tax.toFixed(2)}</td>
+            <td>$${lineTotal.toFixed(2)}</td>
+        </tr>
+    `;
+});
+
+    
 
 /* ============================================================
    CART PAGE – Render Items into the Table
