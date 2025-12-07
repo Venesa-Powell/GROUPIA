@@ -64,18 +64,30 @@ function displayProducts() {
     container.innerHTML = ""; // clear first
 
     products.forEach((p,index) => {
-        container.innerHTML += `
+         const article = document.createElement("article");
+
             <article class="product-card">
+
+             article.innerHTML += `
+
                 <img src="${p.image}" alt="${p.name}" width="200">
                 <h3>${p.name}</h3>
                 <p class="price">$${p.price.toFixed(2)}</p>
                 <p class="description">${p.description}</p>
-                <button class="button ghost add-to-cart" data-index="${index}">Add to Cart</button>
-            </article>
+                <button class="button ghost add-to-cart">Add to Cart</button>
+        
         `;
+     const btn = article.querySelector(".add-to-cart");
+        btn.addEventListener("click", () => {
+            addToCart(p.name);   // Add product by name
+            window.location.href = "cart.html"; // Redirect to cart
+        });
+
+        // Append to container
+        container.appendChild(article);
     });
 
-    setupAddToCartButtons(); // attach event handlers after rendering
+
 }
 
 /* ============================================================
@@ -89,26 +101,7 @@ function saveCart(cart) {
     localStorage.setItem("cart", JSON.stringify(cart));
 }
 
-/* ============================================================
-   ADD TO CART (Home Page)
-   ============================================================ */
-function setupAddToCartButtons() {
-    const buttons = document.querySelectorAll(".add-to-cart");
-    buttons.forEach(btn => {
-        btn.addEventListener("click", (e) => {
-            const index = e.target.dataset.index;
-            const product = products[index];
 
-            if (!product) return;
-
-            // Use addToCart() helper to handle qty
-            addToCart(product.name);
-
-            // Redirect to cart page
-            window.location.href = "cart.html";
-        });
-    });
-}
 
 /* ============================================================
    Add product to cart with quantity
