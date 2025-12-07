@@ -58,14 +58,15 @@ function displayProducts() {
     const container = document.getElementById("productGrid");
     container.innerHTML = ""; // clear first
 
-    products.forEach(p => {
+    products.forEach((p,index)=> {
         container.innerHTML += `
             <article class="product-card">
                 <img src="${p.image}" alt="${p.name}" width="200">
                 <h3>${p.name}</h3>
                 <p class="price">$${p.price.toFixed(2)}</p>
                 <p class="description">${p.description}</p>
-                <a class="button ghost" href="cart.html">Add to Cart</a>
+                 <button class="button ghost add-to-cart" data-index="${index}">Add to Cart</button>
+
             </article>
         `;
     });
@@ -79,7 +80,7 @@ function displayProducts() {
    ============================================================ */
 
 function getCart() {
-    return JSON.parse(Storage.getItem("cart")) || [];
+    return JSON.parse(localStorage.getItem("cart")) || [];
 }
 
 function saveCart(cart) {
@@ -89,24 +90,32 @@ function saveCart(cart) {
 /* ============================================================
    ADD TO CART (Home Page)
    ============================================================ */
-
 function setupAddToCartButtons() {
-    // Buttons on index.html use data-product attribute
-    const buttons = document.querySelectorAll("[data-product]");
-    if (!buttons.length) return; // not on home page
-
+    const buttons = document.querySelectorAll(".add-to-cart");
     buttons.forEach(btn => {
-        btn.addEventListener("", () => {
-            const name = btn.dataset.product;
-            addToCart(name);
-            alert("Item added to cart.");
+        btn.addEventListener("click", (e) => {
+            const index = e.target.dataset.index;
+            const product = products[index];
+
+            // Get current cart from localStorage or empty array
+            const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+            // Add product to cart
+            cart.push(product);
+
+            // Save cart back to localStorage
+            localStorage.setItem("cart", JSON.stringify(cart));
+
+            // Redirect to cart page
+            window.location.href = "cart.html";
         });
     });
-}
 
+}
 function addToCart(name) {
-    // Only add if product exists in our catalog
-    if (!products[name]) return;
+    // Find the product by name in the array
+    const product = products.find(p => p.name === name);
+    if (!product) return; // exit if not found
 
     let cart = getCart();
     const existing = cart.find(item => item.name === name);
@@ -115,8 +124,8 @@ function addToCart(name) {
         existing.qty++;
     } else {
         cart.push({
-            name: name,
-            price: products[name],
+            name: product.name,
+            price: product.price,
             qty: 1
         });
     }
