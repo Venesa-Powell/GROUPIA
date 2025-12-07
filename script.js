@@ -1,4 +1,4 @@
-document.addEventListener("entLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
 
     // Make "Add to Cart" buttons work on the home page
     setupAddToCartButtons();
@@ -21,6 +21,10 @@ document.addEventListener("entLoaded", () => {
     // Fill invoice if we are on invoice.html
     renderInvoicePage();
 });
+
+function ById(id) {
+    return document.getElementById(id);
+}
 
 /* ============================================================
    Data: Product Catalog (name → price)
@@ -78,7 +82,7 @@ window.onload = displayProducts;
    ============================================================ */
 
 function getCart() {
-    return JSON.parse(Storage.getItem("cart")) || [];
+    return JSON.parse(localstorage.getItem("cart")) || [];
 }
 
 function saveCart(cart) {
@@ -202,7 +206,7 @@ function renderCartPage() {
    CHECKOUT – Order Summary (Right Side Panel)
    ============================================================ */
 
-function renderCheckoutSummary() {
+ function renderCheckoutSummary() {
     const summaryList = ById("checkout-summary-list");
     const totalLabel = document.querySelector(".summary .total");
     const amount = ById("amount");
@@ -455,10 +459,9 @@ function setupLoginForm() {
              return;
          }
 
-        const email = ById("email").value.trim();
         const password = ById("password").value;
 
-        if (!username || !email || !password) {
+        if (!username || !password) {
             alert("Please fill in all login fields.");
             return;
         }
@@ -467,19 +470,18 @@ function setupLoginForm() {
         const user = users.find(
             u =>
                 u.username === username &&
-                u.email === email &&
                 u.password === password
         );
 
         if (!user) {
-            alert("Invalid username, email, or password.");
+            alert("Invalid username or password.");
             return;
         }
 
         // Save current logged in user
         localStorage.setItem(
             "currentUser",
-            JSON.stringify({ username: user.username, email: user.email })
+            JSON.stringify({ username: user.username })
         );
 
         alert("Login successful.");
@@ -601,7 +603,7 @@ function renderInvoicePage() {
             otherCount++;
         }
 
-        }
+        
 
         // Count age groups
         const age = user.age;
